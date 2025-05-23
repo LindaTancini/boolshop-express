@@ -25,6 +25,9 @@ app.get("/", (req, res) => {
   res.send("Homepage della Webapp!");
 });
 
+//route of album
+app.use('/api/album', albumRouter);
+
 // middleware errori
 app.use(errorHandler);
 
