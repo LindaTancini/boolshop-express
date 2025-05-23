@@ -3,9 +3,10 @@ const connection = require("../data/db");
 //index
 function index(req, res) {
     // const sql = `SELECT * FROM albums`
-    const sql = `SELECT albums.*, genres.name AS 'genre'
+    const sql = `SELECT albums.*, genres.name AS 'genre', artists.name AS 'artist'
                     FROM albums 
                     INNER JOIN genres ON genres.id = albums.genre_id
+                    INNER JOIN artists ON artists.id = albums.id_artist
                     ORDER BY albums.id ASC`;
 
 
@@ -18,7 +19,8 @@ function index(req, res) {
             id: album.id,
             title: album.name,
             cover: album.cover,
-            genre: album.genre
+            genre: album.genre,
+            artist: album.artist
         })));
     });
 }
