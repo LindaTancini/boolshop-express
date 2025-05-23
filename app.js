@@ -1,5 +1,5 @@
 //Express
-const port = process.env.PORT || 3005;
+const port = process.env.PORT || 3000;
 const express = require('express');
 const app = express();
 const cors = require('cors');
@@ -7,7 +7,7 @@ const errorHandler = require('./middlewares/errorHandler.js');
 const notFound = require('./middlewares/notFound.js');
 
 //connection to routers
-const albumRouter = require('./routers/album.js');
+const albumRouter = require('./routers/routes.js');
 
 //cors middleware
 app.use(cors({
