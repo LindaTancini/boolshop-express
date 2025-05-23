@@ -1,9 +1,24 @@
 //Express
-const express = require("express");
+const port = process.env.PORT || 3005;
+const express = require('express');
 const app = express();
-const port = 3000;
+const cors = require('cors');
 const errorHandler = require('./middlewares/errorHandler.js');
 const notFound = require('./middlewares/notFound.js');
+
+//connection to routers
+const albumRouter = require('./routers/album.js');
+
+//cors middleware
+app.use(cors({
+  origin: process.env.FE_APP
+}));
+
+//static middleware
+app.use(express.static('public'));
+
+//body parser
+app.use(express.json());//req.body
 
 //HomePage
 app.get("/", (req, res) => {
