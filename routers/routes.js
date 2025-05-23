@@ -1,9 +1,10 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const albumController = require('../controllers/albumController');
+const albumController = require("../controllers/albumController");
 
-router.get('/', albumController.index);
-
-router.get('/:id', albumController.show);
+// Index
+router.get("/", albumController.index);
+// Show -> cerco un singolo album
+router.get("/:id", albumController.show);
 
 module.exports = router;
