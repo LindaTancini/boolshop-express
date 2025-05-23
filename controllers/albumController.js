@@ -3,6 +3,8 @@ const connection = require("../data/db");
 function index(req, res) {
     const sql = 'SELECT * FROM albums';
 
+    console.log(process.env)
+
     connection.query(sql, (err, results) => {
         if (err) {
             console.error("Errore nella query al database:", err);
