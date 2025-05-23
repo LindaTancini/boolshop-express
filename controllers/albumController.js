@@ -1,5 +1,6 @@
 const connection = require("../data/db");
 
+//index
 function index(req, res) {
     const sql = 'SELECT * FROM albums';
 
@@ -20,6 +21,23 @@ function index(req, res) {
     });
 }
 
+//show
+function show(req, res){
+    const {id} = req.params;
+
+    const sql = 'SELECT * FROM albums WHERE albums.id = ?';
+
+    connection.query(sql, [id], (err, result) => {
+        if (err) {
+            console.error("Errore nella query al database:", err);
+            return res.status(500).json({ error: 'Database query failed', details: err.message });
+        }
+        if (result.length === 0) return res.status(404).json({ errorMessage: 'Error Server' })
+        res.json(result[0]);
+
+    })
+}
+
 module.exports = {
-    index
+    index, show
 };
