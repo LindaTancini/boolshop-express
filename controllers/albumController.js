@@ -4,6 +4,8 @@ function index(req, res) {
 
     const sql = 'SELECT * FROM albums';
 
+    console.log(process.env)
+
     connection.query(sql, (err, results) => {
         if (err) return res.status(500).json({ error: 'Database query failed' });
         res.json(results.map((albums) => {
