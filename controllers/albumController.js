@@ -1,4 +1,5 @@
 const connection = require("../data/db");
+const { default: slugify } = require('slugify');
 
 //index
 function index(req, res) {
@@ -27,15 +28,15 @@ function index(req, res) {
 
 //show
 function show(req, res) {
-    const { id } = req.params;
+    const { slug } = req.params;
 
     const sql = `SELECT albums.*, genres.name AS 'genre', artists.name AS 'artist'
                     FROM albums 
                     INNER JOIN genres ON genres.id = albums.genre_id
                     INNER JOIN artists ON artists.id = albums.id_artist
-                    WHERE albums.id = ?`;
+                    WHERE albums.slug = ?`;
 
-    connection.query(sql, [id], (err, result) => {
+    connection.query(sql, [slug], (err, result) => {
         if (err) {
             console.error("Errore nella query al database:", err);
             return res.status(500).json({ error: 'Database query failed', details: err.message });
@@ -45,7 +46,8 @@ function show(req, res) {
         res.json({
             ...album,
             genre: album.genre,
-            artist: album.artist
+            artist: album.artist,
+            slug
         });
 
     })

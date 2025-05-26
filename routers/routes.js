@@ -5,6 +5,6 @@ const albumController = require("../controllers/albumController");
 // Index
 router.get("/", albumController.index);
 // Show -> cerco un singolo album
-router.get("/:id", albumController.show);
+router.get("/:slug", albumController.show);
 
 module.exports = router;
