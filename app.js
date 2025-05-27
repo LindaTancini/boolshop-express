@@ -9,6 +9,7 @@ const notFound = require('./middlewares/notFound.js');
 
 //connection to routers
 const albumRouter = require('./routers/routes.js');
+const genreRouter = require('./routers/genres.js');
 
 //cors middleware
 app.use(cors({
@@ -28,6 +29,9 @@ app.get("/", (req, res) => {
 
 //route of album
 app.use('/api/album', albumRouter);
+
+//route of genre
+app.use('/api/genres', genreRouter);
 
 // middleware errori
 app.use(errorHandler);
