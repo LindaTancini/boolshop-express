@@ -4,15 +4,15 @@ const connection = require("../data/db");
 function index(req, res) {
   const sql = `
     SELECT 
-      albums.*,
+      album.*,
       genres.slug AS genre_slug, 
       genres.name AS genre_name, 
-      artists.slug AS artist_slug, 
-      artists.name AS artist_name
-    FROM albums 
-    INNER JOIN genres ON genres.id = albums.genre_id
-    INNER JOIN artists ON artists.id = albums.id_artist
-    ORDER BY albums.id ASC
+      artist.slug AS artist_slug, 
+      artist.name AS artist_name
+    FROM album 
+    INNER JOIN genres ON genres.id = album.genre_id
+    INNER JOIN artist ON artist.id = album.id_artist
+    ORDER BY album.id ASC
   `;
 
 
@@ -44,15 +44,15 @@ function show(req, res) {
 
   const sql = `
     SELECT 
-      albums.*, 
+      album.*, 
       genres.slug AS genre_slug, 
       genres.name AS genre_name, 
-      artists.slug AS artist_slug,
-      artists.name AS artist_name
-    FROM albums 
-    INNER JOIN genres ON genres.id = albums.genre_id
-    INNER JOIN artists ON artists.id = albums.id_artist
-    WHERE albums.slug = ?
+      artist.slug AS artist_slug,
+      artist.name AS artist_name
+    FROM album 
+    INNER JOIN genres ON genres.id = album.genre_id
+    INNER JOIN artist ON artist.id = album.id_artist
+    WHERE album.slug = ?
   `;
 
   connection.query(sql, [slug], (err, result) => {
@@ -68,11 +68,11 @@ function show(req, res) {
       title: album.name,
       cover: album.cover,
       genre: {
-        slug: genre_slug,
+        slug: album.genre_slug,
         name: album.genre_name
       },
       artist: {
-        slug: artist_slug,
+        slug: album.artist_slug,
         name: album.artist_name
       },
     });

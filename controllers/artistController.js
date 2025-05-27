@@ -2,7 +2,7 @@ const connection = require("../data/db");
 
 //index
 function index(req, res) {
-    const sql = `SELECT artists.* FROM artists`;
+    const sql = `SELECT artist.* FROM artist`;
 
 
     connection.query(sql, (err, results) => {
@@ -18,8 +18,8 @@ function index(req, res) {
 function show(req, res) {
     const { slug } = req.params;
 
-    const sql = `SELECT artists.* FROM artists
-                WHERE artists.slug = ?`;
+    const sql = `SELECT artist.* FROM artist
+                WHERE artist.slug = ?`;
 
     connection.query(sql, [slug], (err, result) => {
         if (err) {
