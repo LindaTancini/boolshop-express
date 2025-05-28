@@ -1,4 +1,5 @@
 const connection = require("../data/db");
+const getLimitOffset = require('../utils/getLimitOffset');
 
 //index
 function index(req, res) {
@@ -23,6 +24,11 @@ function index(req, res) {
   };
 
   sql += `ORDER BY album.id ASC`;
+
+  // Paginazione
+  const { limit, offset } = getLimitOffset(req);
+  sql += " LIMIT ? OFFSET ?";
+  preparedParams.push(limit, offset);
 
   connection.query(sql, preparedParams, (err, results) => {
     if (err) {
@@ -65,46 +71,75 @@ function show(req, res) {
 
 // Filtra album per nome, genere e artista
 function filter(req, res) {
-  const { name, genre, artist } = req.query;
+  const { format, genre, price, artist, order } = req.query;
   const preparedParams = [];
   let whereClauses = [];
   let sql = `
-        SELECT 
-        album.*,
-        genres.slug AS genre_slug, 
-        genres.name AS genre_name, 
-        artist.slug AS artist_slug, 
-        artist.name AS artist_name
-        FROM album 
-        INNER JOIN genres ON genres.id = album.genre_id
-        INNER JOIN artist ON artist.id = album.id_artist
-    `;
+    SELECT 
+    album.*,
+    genres.slug AS genre_slug, 
+    genres.name AS genre_name, 
+    artist.slug AS artist_slug, 
+    artist.name AS artist_name
+    FROM album 
+    INNER JOIN genres ON genres.id = album.genre_id
+    INNER JOIN artist ON artist.id = album.id_artist
+  `;
 
-  if (name) {
-    whereClauses.push("LOWER(album.name) LIKE ?");
-    preparedParams.push(`%${name.toLowerCase()}%`);
+  // formato, genere, prezzo, artista
+
+  if (format) {
+    whereClauses.push("LOWER(album.format) LIKE ?");
+    preparedParams.push(format.toLowerCase());
   };
 
   if (genre) {
     whereClauses.push("LOWER(genres.name) LIKE ?");
-    preparedParams.push(`%${genre.toLowerCase()}%`);
+    preparedParams.push(genre.toLowerCase());
+  };
+
+  if (price) {
+    const prices = price.split(':').map(e => parseFloat(e));
+    whereClauses.push("LOWER(album.price) BETWEEN ? AND ?");
+    preparedParams.push(...prices);
   };
 
   if (artist) {
     whereClauses.push("LOWER(artist.name) LIKE ?");
-    preparedParams.push(`%${artist.toLowerCase()}%`);
+    preparedParams.push(artist.toLowerCase());
   };
 
   if (whereClauses.length > 0)
     sql += " WHERE " + whereClauses.join(" AND ");
 
-  sql += " ORDER BY album.id ASC";
+
+  const orders = {
+    disp: 'album.quantity ASC',
+    sell: 'album.quantity DESC',
+    name_asc: 'album.name ASC',
+    name_desc: 'album.name DESC',
+    price_asc: 'album.price ASC',
+    price_desc: 'album.price DESC',
+    date_asc: 'album.release_date ASC',
+    date_desc: 'album.release_date DESC',
+  };
+
+  sql += ` ORDER BY ${orders[order]}`;
+
+
+  // Paginazione
+  const { limit, offset } = getLimitOffset(req);
+
+  sql += " LIMIT ? OFFSET ?";
+  preparedParams.push(limit, offset);
+
 
   connection.query(sql, preparedParams, (err, results) => {
     if (err) {
       console.error("Errore nella query al database:", err);
       return res.status(500).json({ error: 'Database query failed', details: err.message });
     }
+
     res.json(results.map(formatAlbum));
   });
 }
@@ -116,6 +151,8 @@ function formatAlbum(album) {
     slug: album.slug,
     title: album.name,
     cover: album.cover,
+    price: album.price,
+    date: album.release_date,
     genre: {
       slug: album.genre_slug,
       name: album.genre_name
@@ -123,7 +160,7 @@ function formatAlbum(album) {
     artist: {
       slug: album.artist_slug,
       name: album.artist_name
-    }
+    },
   };
 }
 
