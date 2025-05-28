@@ -153,6 +153,7 @@ function formatAlbum(album) {
     cover: album.cover,
     price: album.price,
     date: album.release_date,
+    quantity: album.quantity,
     genre: {
       slug: album.genre_slug,
       name: album.genre_name
