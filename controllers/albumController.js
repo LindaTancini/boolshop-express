@@ -26,9 +26,9 @@ function index(req, res) {
   sql += `ORDER BY album.id ASC`;
 
   // Paginazione
-  const { limit, offset } = getLimitOffset(req);
-  sql += " LIMIT ? OFFSET ?";
-  preparedParams.push(limit, offset);
+//   const { limit, offset } = getLimitOffset(req);
+//   sql += " LIMIT ? OFFSET ?";
+//   preparedParams.push(limit, offset);
 
   connection.query(sql, preparedParams, (err, results) => {
     if (err) {
@@ -128,10 +128,10 @@ function filter(req, res) {
 
 
   // Paginazione
-  const { limit, offset } = getLimitOffset(req);
+//   const { limit, offset } = getLimitOffset(req);
 
-  sql += " LIMIT ? OFFSET ?";
-  preparedParams.push(limit, offset);
+//   sql += " LIMIT ? OFFSET ?";
+//   preparedParams.push(limit, offset);
 
 
   connection.query(sql, preparedParams, (err, results) => {
