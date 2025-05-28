@@ -124,7 +124,7 @@ function filter(req, res) {
     date_desc: 'album.release_date DESC',
   };
 
-  sql += ` ORDER BY ${orders[order]}`;
+  sql += ` ORDER BY ${orders[order] ?? 'album.id ASC'}`;
 
 
   // Paginazione
