@@ -4,6 +4,7 @@ const getLimitOffset = require('../utils/getLimitOffset');
 //index
 function index(req, res) {
     const { search } = req.query;
+    const {filter} =req.query;
     const preparedParams = [];
     let sql = `
     SELECT 
@@ -23,7 +24,22 @@ function index(req, res) {
         preparedParams.push(`%${searchLower}%`, `%${searchLower}%`, `%${searchLower}%`);
     };
 
-    sql += `ORDER BY album.id ASC`;
+    if(filter=== ""){
+        sql += `ORDER BY album.id ASC`;
+    }
+
+    if (filter === "ordine crescente per nome"){
+        sql += `ORDER BY album.name ASC`;
+    }
+    if (filter === "ordine decrescente per nome"){
+        sql += `ORDER BY album.name DESC`;
+    }
+    if (filter === "i più nuovi"){
+        sql += `ORDER BY album.release_date DESC`;
+    }
+    if (filter === "i più vecchi"){
+        sql += `ORDER BY album.release_date ASC`;
+    }
 
     connection.query(sql, preparedParams, (err, results) => {
         if (err) {
