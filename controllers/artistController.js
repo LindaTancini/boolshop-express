@@ -2,7 +2,7 @@ const connection = require("../data/db");
 
 //index
 function index(req, res) {
-    const sql = `SELECT artist.* FROM artist`;
+    const sql = `SELECT artist.* FROM artist ORDER BY name ASC`;
 
 
     connection.query(sql, (err, results) => {
