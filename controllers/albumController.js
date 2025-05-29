@@ -188,6 +188,7 @@ function formatAlbum(album) {
 
 
 function filterCD(req, res) {
+    const { filter } = req.query;
     const { search } = req.query;
     const preparedParams = [];
     let sql = `
@@ -208,6 +209,22 @@ function filterCD(req, res) {
         preparedParams.push(`%${searchLower}%`, `%${searchLower}%`, `%${searchLower}%`);
     };
     
+    if (filter === "") {
+        sql += `ORDER BY album.id ASC`;
+    }
+
+    if (filter === "ordine crescente per nome") {
+        sql += `ORDER BY album.name ASC`;
+    }
+    if (filter === "ordine decrescente per nome") {
+        sql += `ORDER BY album.name DESC`;
+    }
+    if (filter === "i più nuovi") {
+        sql += `ORDER BY album.release_date DESC`;
+    }
+    if (filter === "i più vecchi") {
+        sql += `ORDER BY album.release_date ASC`;
+    }
 
     connection.query(sql, preparedParams, (err, result) => {
         if (err) {
@@ -221,6 +238,7 @@ function filterCD(req, res) {
 }
 
 function filterVinyl(req, res) {
+    const { filter } = req.query;
     const { search } = req.query;
     const preparedParams = [];
     let sql = `
@@ -240,6 +258,23 @@ function filterVinyl(req, res) {
         sql += `AND LOWER(album.name) LIKE ? OR LOWER(genres.name) LIKE ? OR LOWER(artist.name) LIKE ? `;
         preparedParams.push(`%${searchLower}%`, `%${searchLower}%`, `%${searchLower}%`);
     };
+
+    if (filter === "") {
+        sql += `ORDER BY album.id ASC`;
+    }
+
+    if (filter === "ordine crescente per nome") {
+        sql += `ORDER BY album.name ASC`;
+    }
+    if (filter === "ordine decrescente per nome") {
+        sql += `ORDER BY album.name DESC`;
+    }
+    if (filter === "i più nuovi") {
+        sql += `ORDER BY album.release_date DESC`;
+    }
+    if (filter === "i più vecchi") {
+        sql += `ORDER BY album.release_date ASC`;
+    }
 
     console.log(sql);
     connection.query(sql, preparedParams, (err, result) => {
