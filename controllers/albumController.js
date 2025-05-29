@@ -41,8 +41,10 @@ function show(req, res) {
       console.error("Errore nella query al database:", err);
       return res.status(500).json({ error: 'Database query failed', details: err.message });
     }
+
     if (result.length === 0)
       return res.status(404).json({ errorMessage: 'Error Server' });
+
     res.json(formatAlbum(result[0]));
   });
 }
@@ -58,14 +60,19 @@ function filter(req, res) {
     artist ? "LOWER(artist.name) LIKE ?" : null
   ].filter(Boolean);
 
+
   if (format)
     preparedParams.push(format.toLowerCase());
+
   if (genre)
     preparedParams.push(genre.toLowerCase());
+
   if (price)
     preparedParams.push(...price.split(':').map(e => parseFloat(e)));
+
   if (artist)
     preparedParams.push(artist.toLowerCase());
+
 
   let sql = `
     SELECT 
@@ -79,7 +86,8 @@ function filter(req, res) {
     INNER JOIN 
       genres ON genres.id = album.genre_id 
     INNER JOIN 
-      artist ON artist.id = album.id_artist`;
+      artist ON artist.id = album.id_artist
+  `;
 
   sql += whereClauses.length ? " WHERE " + whereClauses.join(" AND ") : '';
 
@@ -93,6 +101,7 @@ function filter(req, res) {
     date_asc: 'album.release_date ASC',
     date_desc: 'album.release_date DESC',
   };
+
   sql += order ? ` ORDER BY ${orders[order] ?? 'album.id ASC'}` : '';
 
   // Paginazione
@@ -105,6 +114,7 @@ function filter(req, res) {
       console.error("Errore nella query al database:", err);
       return res.status(500).json({ error: 'Database query failed', details: err.message });
     }
+
     res.json(results.map(formatAlbum));
   });
 }
@@ -168,6 +178,7 @@ function queryAlbums({ req, res, format = undefined }) {
       console.error("Errore nella query al database:", err);
       return res.status(500).json({ error: 'Database query failed', details: err.message });
     }
+
     res.json(results.map(formatAlbum));
   });
 }
