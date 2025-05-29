@@ -219,11 +219,11 @@ function filterVinyl(req, res) {
     INNER JOIN artist ON artist.id = album.id_artist
     WHERE album.format = "Vinyl"`;
 
-    // if (search) {
-    //     const searchLower = search.toLowerCase();
-    //     sql += `AND LOWER(album.name) LIKE ? OR LOWER(genres.name) LIKE ? OR LOWER(artist.name) LIKE ? `;
-    //     preparedParams.push(`%${searchLower}%`, `%${searchLower}%`, `%${searchLower}%`);
-    // };
+    if (search) {
+        const searchLower = search.toLowerCase();
+        sql += `AND LOWER(album.name) LIKE ? OR LOWER(genres.name) LIKE ? OR LOWER(artist.name) LIKE ? `;
+        preparedParams.push(`%${searchLower}%`, `%${searchLower}%`, `%${searchLower}%`);
+    };
 
     console.log(sql);
     connection.query(sql, preparedParams, (err, result) => {
