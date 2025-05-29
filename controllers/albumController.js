@@ -169,6 +169,33 @@ function formatAlbum(album) {
   };
 }
 
+function filterCD(req, res){
+    let sql = `SELECT * FROM album WHERE format = "CD";`
+
+    connection.query(sql, (err, result) => {
+        if (err) {
+            console.error("Errore nella query al database:", err);
+            return res.status(500).json({ error: 'Database query failed', details: err.message });
+        }
+
+        res.json(result);
+    });
+    
+}
+function filterVinyl(req, res){
+    let sql = `SELECT * FROM album WHERE format = "Vinyl";`
+
+    connection.query(sql, (err, result) => {
+        if (err) {
+            console.error("Errore nella query al database:", err);
+            return res.status(500).json({ error: 'Database query failed', details: err.message });
+        }
+
+        res.json(result);
+    });
+    
+}
+
 module.exports = {
-  index, show, filter
+  index, show, filter, filterCD, filterVinyl
 };
