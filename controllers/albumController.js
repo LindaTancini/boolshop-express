@@ -152,7 +152,7 @@ function formatAlbum(album) {
     return {
         id: album.id,
         slug: album.slug,
-        title: album.name,
+        name: album.name,
         cover: album.cover,
         price: album.price,
         date: album.release_date,
@@ -173,6 +173,7 @@ function formatAlbum(album) {
 
 function filterCD(req, res) {
     const { search } = req.query;
+    const preparedParams = [];
     let sql = `
     SELECT 
     album.*,
@@ -183,16 +184,16 @@ function filterCD(req, res) {
     FROM album 
     INNER JOIN genres ON genres.id = album.genre_id
     INNER JOIN artist ON artist.id = album.id_artist
-    WHERE album.format = "CD"; `;
+    WHERE album.format = "CD" `;
     
     if (search) {
         const searchLower = search.toLowerCase();
-        sql += `AND WHERE LOWER(album.name) LIKE ? OR LOWER(genres.name) LIKE ? OR LOWER(artist.name) LIKE ? `;
+        sql += `AND LOWER(album.name) LIKE ? OR LOWER(genres.name) LIKE ? OR LOWER(artist.name) LIKE ? `;
         preparedParams.push(`%${searchLower}%`, `%${searchLower}%`, `%${searchLower}%`);
     };
     
 
-    connection.query(sql, (err, result) => {
+    connection.query(sql, preparedParams, (err, result) => {
         if (err) {
             console.error("Errore nella query al database:", err);
             return res.status(500).json({ error: 'Database query failed', details: err.message });
@@ -205,6 +206,7 @@ function filterCD(req, res) {
 
 function filterVinyl(req, res) {
     const { search } = req.query;
+    const preparedParams = [];
     let sql = `
     SELECT 
     album.*,
@@ -215,16 +217,16 @@ function filterVinyl(req, res) {
     FROM album 
     INNER JOIN genres ON genres.id = album.genre_id
     INNER JOIN artist ON artist.id = album.id_artist
-    WHERE album.format = "Vinyl"; `;
+    WHERE album.format = "Vinyl"`;
 
     if (search) {
         const searchLower = search.toLowerCase();
-        sql += `AND WHERE LOWER(album.name) LIKE ? OR LOWER(genres.name) LIKE ? OR LOWER(artist.name) LIKE ? `;
+        sql += `AND LOWER(album.name) LIKE ? OR LOWER(genres.name) LIKE ? OR LOWER(artist.name) LIKE ? `;
         preparedParams.push(`%${searchLower}%`, `%${searchLower}%`, `%${searchLower}%`);
     };
 
-
-    connection.query(sql, (err, result) => {
+    console.log(sql);
+    connection.query(sql, preparedParams, (err, result) => {
         if (err) {
             console.error("Errore nella query al database:", err);
             return res.status(500).json({ error: 'Database query failed', details: err.message });
