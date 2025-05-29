@@ -2,10 +2,19 @@ const connection = require("../data/db");
 
 //index
 function index(req, res) {
-    const sql = `SELECT artist.* FROM artist ORDER BY name ASC`;
+    let sql = `SELECT artist.* FROM artist `;
+    const { search } = req.body;
+    let preparedParams = [];
 
+    if (search) {
+        const searchLower = search.toLowerCase();
+        sql += `WHERE LOWER(artist.name) LIKE ? `;
+        preparedParams.push(`%${search}%`);
+    }
 
-    connection.query(sql, (err, results) => {
+    sql+= `ORDER BY artist.id`;
+    console.log(sql);
+    connection.query(sql, preparedParams, (err, results) => {
         if (err) {
             console.error("Errore nella query al database:", err);
             return res.status(500).json({ error: 'Database query failed', details: err.message });
