@@ -3,9 +3,10 @@ const connection = require("../data/db");
 //index
 function index(req, res) {
     let sql = `SELECT artist.* FROM artist `;
-    const { search } = req.body;
+    const { search } = req.query;
     let preparedParams = [];
 
+    console.log(search);
     if (search) {
         const searchLower = search.toLowerCase();
         sql += `WHERE LOWER(artist.name) LIKE ? `;
