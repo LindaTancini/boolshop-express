@@ -66,8 +66,8 @@ function show(req, res) {
 
 // Filtra album per nome, genere e artista
 function filter(req, res) {
-    const { search } = req.params;
-    const { format, genre, price, artist, order, title } = req.body;
+    // const { search } = req.params;
+    const { format, genre, price, artist, order } = req.body;
     const preparedParams = [];
     let whereClauses = [];
     let sql = `
@@ -83,33 +83,27 @@ function filter(req, res) {
   `;
 
     // formato, genere, prezzo, artista
-    if (search) {
-        // if (format) {
-        //     whereClauses.push("LOWER(album.format) LIKE ?");
-        //     preparedParams.push(format.toLowerCase());
-        // };
+    if (format) {
+        whereClauses.push("LOWER(album.format) LIKE ?");
+        preparedParams.push(format.toLowerCase());
+    };
 
-        if (title) {
-            whereClauses.push("LOWER(album.title) LIKE ?");
-            preparedParams.push(title.toLowerCase());
-        }
-        if (genre) {
-            whereClauses.push("LOWER(genres.name) LIKE ?");
-            preparedParams.push(genre.toLowerCase());
-        };
+    if (genre) {
+        whereClauses.push("LOWER(genres.name) LIKE ?");
+        preparedParams.push(genre.toLowerCase());
+    };
 
-        // if (price) {
-        //     const prices = price.split(':').map(e => parseFloat(e));
-        //     whereClauses.push("LOWER(album.price) BETWEEN ? AND ?");
-        //     preparedParams.push(...prices);
-        // };
+    if (price) {
+        const prices = price.split(':').map(e => parseFloat(e));
+        whereClauses.push("LOWER(album.price) BETWEEN ? AND ?");
+        preparedParams.push(...prices);
+    };
 
-        if (artist) {
-            whereClauses.push("LOWER(artist.name) LIKE ?");
-            preparedParams.push(artist.toLowerCase());
-        };
+    if (artist) {
+        whereClauses.push("LOWER(artist.name) LIKE ?");
+        preparedParams.push(artist.toLowerCase());
+    };
 
-    }
 
     if (whereClauses.length > 0)
         sql += " WHERE " + whereClauses.join(" AND ");
@@ -131,17 +125,17 @@ function filter(req, res) {
 
 
     // Paginazione
-    // const { limit, offset } = getLimitOffset(req);
+    const { limit, offset } = getLimitOffset(req);
 
-    // if (limit) {
-    //     sql += " LIMIT ?";
-    //     preparedParams.push(limit);
-    // };
+    if (limit) {
+        sql += " LIMIT ?";
+        preparedParams.push(limit);
+    };
 
-    // if (offset) {
-    //     sql += " OFFSET ?";
-    //     preparedParams.push(offset);
-    // };
+    if (offset) {
+        sql += " OFFSET ?";
+        preparedParams.push(offset);
+    };
 
     connection.query(sql, preparedParams, (err, results) => {
         if (err) {
@@ -176,8 +170,27 @@ function formatAlbum(album) {
     };
 }
 
+
 function filterCD(req, res) {
-    let sql = `SELECT * FROM album WHERE format = "CD";`
+    const { search } = req.query;
+    let sql = `
+    SELECT 
+    album.*,
+    genres.slug AS genre_slug, 
+    genres.name AS genre_name, 
+    artist.slug AS artist_slug, 
+    artist.name AS artist_name
+    FROM album 
+    INNER JOIN genres ON genres.id = album.genre_id
+    INNER JOIN artist ON artist.id = album.id_artist
+    WHERE album.format = "CD"; `;
+    
+    if (search) {
+        const searchLower = search.toLowerCase();
+        sql += `AND WHERE LOWER(album.name) LIKE ? OR LOWER(genres.name) LIKE ? OR LOWER(artist.name) LIKE ? `;
+        preparedParams.push(`%${searchLower}%`, `%${searchLower}%`, `%${searchLower}%`);
+    };
+    
 
     connection.query(sql, (err, result) => {
         if (err) {
@@ -185,16 +198,31 @@ function filterCD(req, res) {
             return res.status(500).json({ error: 'Database query failed', details: err.message });
         }
 
-        res.json(result.map(resu => ({
-            ...resu,
-            imagePath: `${process.env.IMG_PATH}${resu.cover}`
-
-        })));
+        res.json(result.map(formatAlbum));
     });
 
 }
+
 function filterVinyl(req, res) {
-    let sql = `SELECT * FROM album WHERE format = "Vinyl";`
+    const { search } = req.query;
+    let sql = `
+    SELECT 
+    album.*,
+    genres.slug AS genre_slug, 
+    genres.name AS genre_name, 
+    artist.slug AS artist_slug, 
+    artist.name AS artist_name
+    FROM album 
+    INNER JOIN genres ON genres.id = album.genre_id
+    INNER JOIN artist ON artist.id = album.id_artist
+    WHERE album.format = "Vinyl"; `;
+
+    if (search) {
+        const searchLower = search.toLowerCase();
+        sql += `AND WHERE LOWER(album.name) LIKE ? OR LOWER(genres.name) LIKE ? OR LOWER(artist.name) LIKE ? `;
+        preparedParams.push(`%${searchLower}%`, `%${searchLower}%`, `%${searchLower}%`);
+    };
+
 
     connection.query(sql, (err, result) => {
         if (err) {
@@ -202,11 +230,7 @@ function filterVinyl(req, res) {
             return res.status(500).json({ error: 'Database query failed', details: err.message });
         }
 
-        res.json(result.map(resu => ({
-            ...resu,
-            imagePath: `${process.env.IMG_PATH}${resu.cover}`
-
-        })));
+        res.json(result.map(formatAlbum));
     });
 
 }
