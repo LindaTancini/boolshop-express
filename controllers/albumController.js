@@ -157,6 +157,7 @@ function formatAlbum(album) {
     date: album.release_date,
     quantity: album.quantity,
     imagePath: `${process.env.IMG_PATH}${album.cover}`,
+    format: album.format,
     genre: {
       slug: album.genre_slug,
       name: album.genre_name
