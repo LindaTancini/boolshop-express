@@ -10,10 +10,10 @@ function index(req, res) {
     if (search) {
         const searchLower = search.toLowerCase();
         sql += `WHERE LOWER(artist.name) LIKE ? `;
-        preparedParams.push(`%${search}%`);
+        preparedParams.push(`%${searchLower}%`);
     }
 
-    sql+= `ORDER BY artist.id`;
+    sql += `ORDER BY artist.id`;
     console.log(sql);
     connection.query(sql, preparedParams, (err, results) => {
         if (err) {
