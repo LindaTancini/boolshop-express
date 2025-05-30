@@ -206,7 +206,32 @@ function formatAlbum(album) {
   };
 }
 
+// Endpoint: restituisce tutti i formati disponibili
+function formats(req, res) {
+  const sql = 'SELECT DISTINCT format FROM album';
+  connection.query(sql, (err, results) => {
+    if (err) {
+      console.error('Errore nella query al database:', err);
+      return res.status(500).json({ error: 'Database query failed', details: err.message });
+    }
+    // Restituisce array di stringhe (formati)
+    res.json(results.map(r => r.format));
+  });
+}
+
+// Endpoint: restituisce il prezzo minimo e massimo degli album
+function priceRange(req, res) {
+  const sql = 'SELECT MIN(price) as minPrice, MAX(price) as maxPrice FROM album';
+  connection.query(sql, (err, results) => {
+    if (err) {
+      console.error('Errore nella query al database:', err);
+      return res.status(500).json({ error: 'Database query failed', details: err.message });
+    }
+    res.json(results[0]);
+  });
+}
+
 // Esportazione dei controller
 module.exports = {
-  index, show, filter, filterCD, filterVinyl
+  index, show, filter, filterCD, filterVinyl, formats, priceRange
 };

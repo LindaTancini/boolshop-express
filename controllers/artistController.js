@@ -6,7 +6,6 @@ function index(req, res) {
     const { search } = req.query;
     let preparedParams = [];
 
-    console.log(search);
     if (search) {
         const searchLower = search.toLowerCase();
         sql += `WHERE LOWER(artist.name) LIKE ? `;
@@ -14,7 +13,6 @@ function index(req, res) {
     }
 
     sql += `ORDER BY artist.id`;
-    console.log(sql);
     connection.query(sql, preparedParams, (err, results) => {
         if (err) {
             console.error("Errore nella query al database:", err);
