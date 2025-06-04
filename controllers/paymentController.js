@@ -5,14 +5,24 @@ exports.createCheckoutSession = async (req, res) => {
   try {
     const { cart, payment: customer, shippingCost, discountResult } = req.body;
 
-    console.log(discountResult);
+    let promotionCodeId = null;
 
-    let coupon;
-    if (discountResult.code) {
+    console.log(discountResult);
+    if (discountResult && discountResult.code) {
       try {
-        coupon = await stripe.coupons.retrieve(discountResult.code);
+        const promoList = await stripe.promotionCodes.list({
+          code: discountResult.code,
+          active: true,
+          limit: 1,
+        });
+
+        if (promoList.data && promoList.data.length > 0) {
+          promotionCodeId = promoList.data[0].id;
+        } else {
+          console.warn("Promotion Code non trovato o non valido:", discountResult.code);
+        }
       } catch (err) {
-        console.warn("Coupon non trovato o non valido:", discountResult.code);
+        console.warn("Errore durante il recupero del Promotion Code:", err);
       }
     }
 
@@ -41,21 +51,21 @@ exports.createCheckoutSession = async (req, res) => {
       mode: "payment",
       shipping_address_collection: { allowed_countries: ["IT"] },
       customer_email: customer.email,
-      success_url: `${process.env.FE_APP}/success`,
+      success_url: `${process.env.FE_APP}/`,
       cancel_url: `${process.env.FE_APP}/cancel`,
       metadata: {
         discountCode: discountResult.code || "",
       },
     };
 
-    if (coupon)
-      sessionParams.discounts = [{ coupon }];
+    if (promotionCodeId)
+      sessionParams.discounts = [{ promotion_code: promotionCodeId }];
 
     const session = await stripe.checkout.sessions.create(sessionParams);
 
     res.json({ url: session.url });
   } catch (err) {
-    console.error(err);
+    console.error("Errore durante la creazione della sessione Stripe:", err);
     res.status(500).json({ error: "Errore durante la creazione della sessione Stripe" });
   }
 };
