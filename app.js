@@ -12,6 +12,7 @@ const albumRouter = require('./routers/routes.js');
 const genreRouter = require('./routers/genres.js');
 const artistRouter = require('./routers/artists.js');
 const discountRouter = require('./routers/discount.js');
+const paymentRouter = require('./routers/paymentRoutes.js');
 
 //cors middleware
 app.use(cors({
@@ -24,10 +25,12 @@ app.use(express.static('public'));
 //body parser
 app.use(express.json());//req.body
 
+
 //HomePage
 app.get("/", (req, res) => {
   res.send("Homepage della Webapp!");
 });
+
 
 //route of album
 app.use('/api/album', albumRouter);
@@ -38,8 +41,13 @@ app.use('/api/genres', genreRouter);
 //route of author
 app.use('/api/artists', artistRouter);
 
+
 //route of discount
 app.use('/api/discount', discountRouter);
+
+//route of payment
+app.use("/api/payment", paymentRouter);
+
 
 // middleware errori
 app.use(errorHandler);
