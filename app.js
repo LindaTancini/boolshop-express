@@ -11,6 +11,7 @@ const notFound = require('./middlewares/notFound.js');
 const albumRouter = require('./routers/routes.js');
 const genreRouter = require('./routers/genres.js');
 const artistRouter = require('./routers/artists.js');
+const discountRouter = require('./routers/discount.js');
 
 //cors middleware
 app.use(cors({
@@ -36,6 +37,9 @@ app.use('/api/genres', genreRouter);
 
 //route of author
 app.use('/api/artists', artistRouter);
+
+//route of discount
+app.use('/api/discount', discountRouter);
 
 // middleware errori
 app.use(errorHandler);
