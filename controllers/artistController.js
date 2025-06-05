@@ -12,7 +12,7 @@ function index(req, res) {
         preparedParams.push(`%${searchLower}%`);
     }
 
-    sql += `ORDER BY artist.id`;
+    sql += `ORDER BY artist.name ASC`;
     connection.query(sql, preparedParams, (err, results) => {
         if (err) {
             console.error("Errore nella query al database:", err);
