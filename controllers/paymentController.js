@@ -1,30 +1,10 @@
+// backend/controllers/paymentController.js
 const Stripe = require("stripe");
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 
 exports.createCheckoutSession = async (req, res) => {
   try {
-    const { cart, payment: customer, shippingCost, discountResult } = req.body;
-
-    let promotionCodeId = null;
-
-    console.log(discountResult);
-    if (discountResult && discountResult.code) {
-      try {
-        const promoList = await stripe.promotionCodes.list({
-          code: discountResult.code,
-          active: true,
-          limit: 1,
-        });
-
-        if (promoList.data && promoList.data.length > 0) {
-          promotionCodeId = promoList.data[0].id;
-        } else {
-          console.warn("Promotion Code non trovato o non valido:", discountResult.code);
-        }
-      } catch (err) {
-        console.warn("Errore durante il recupero del Promotion Code:", err);
-      }
-    }
+    const { cart, shippingCost, discountResult } = req.body;
 
     const line_items = [
       ...cart.map(item => ({
@@ -50,22 +30,20 @@ exports.createCheckoutSession = async (req, res) => {
       line_items,
       mode: "payment",
       shipping_address_collection: { allowed_countries: ["IT"] },
-      customer_email: customer.email,
-      success_url: `${process.env.FE_APP}/`,
+      success_url: `${process.env.FE_APP}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.FE_APP}/cancel`,
       metadata: {
         discountCode: discountResult.code || "",
       },
     };
 
-    if (promotionCodeId)
-      sessionParams.discounts = [{ promotion_code: promotionCodeId }];
+    if (discountResult && discountResult.code) {
+      sessionParams.allow_promotion_codes = true;
+    }
 
     const session = await stripe.checkout.sessions.create(sessionParams);
-
-    res.json({ url: session.url });
+    return res.json({ url: session.url });
   } catch (err) {
-    console.error("Errore durante la creazione della sessione Stripe:", err);
-    res.status(500).json({ error: "Errore durante la creazione della sessione Stripe" });
+    return res.status(500).json({ error: "Errore durante la creazione della sessione Stripe" });
   }
 };
