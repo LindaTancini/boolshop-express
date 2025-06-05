@@ -1,4 +1,3 @@
-// backend/controllers/paymentController.js
 const Stripe = require("stripe");
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 
@@ -32,18 +31,30 @@ exports.createCheckoutSession = async (req, res) => {
       shipping_address_collection: { allowed_countries: ["IT"] },
       success_url: `${process.env.FE_APP}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.FE_APP}/cancel`,
-      metadata: {
-        discountCode: discountResult.code || "",
-      },
+      allow_promotion_codes: true,
     };
-
-    if (discountResult && discountResult.code) {
-      sessionParams.allow_promotion_codes = true;
-    }
 
     const session = await stripe.checkout.sessions.create(sessionParams);
     return res.json({ url: session.url });
   } catch (err) {
     return res.status(500).json({ error: "Errore durante la creazione della sessione Stripe" });
+  }
+};
+
+exports.getSession = async (req, res) => {
+  const { session_id } = req.query;
+
+  if (!session_id) {
+    return res.status(400).json({ error: "Session ID mancante" });
+  }
+
+  try {
+    const session = await stripe.checkout.sessions.retrieve(session_id, {
+      expand: ["line_items", "customer_details", "total_details"],
+    });
+
+    res.json(session);
+  } catch (err) {
+    res.status(404).json({ error: "Sessione non trovata" });
   }
 };
